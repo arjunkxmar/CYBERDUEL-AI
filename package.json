@@ -1,0 +1,12 @@
+{
+  "name": "cyberduel-ai",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CyberDuel AI Platform Monorepo",
+  "scripts": {
+    "build": "npm --prefix apps/dashboard install && npm --prefix apps/dashboard run build",
+    "dev": "npm --prefix apps/dashboard run dev",
+    "test:frontend": "npm --prefix apps/dashboard test",
+    "install:frontend": "npm --prefix apps/dashboard install"
+  }
+}

@@ -1,0 +1,38 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "buildCommand": "if [ -d \"apps/dashboard\" ]; then cd apps/dashboard; else cd ../apps/dashboard; fi && npm install && npm run build",
+  "outputDirectory": "apps/dashboard/dist",
+  "functions": {
+    "api/index.py": {
+      "includeFiles": "{apps/api/**,packages/**,services/**,datasets/**}",
+      "maxDuration": 30
+    }
+  },
+  "rewrites": [
+    {
+      "source": "/api/v1/:match*",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/api/:match*",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/docs",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/redoc",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/openapi.json",
+      "destination": "/api/index.py"
+    },
+    {
+      "source": "/((?!api|docs|redoc|openapi.json).*)",
+      "destination": "/index.html"
+    }
+  ]
+}
+
