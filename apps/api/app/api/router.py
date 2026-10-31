@@ -13,6 +13,23 @@ api_router = APIRouter()
 
 
 @api_router.get(
+    "/",
+    tags=["Root"],
+    summary="API Root",
+    description="CyberDuel AI API Gateway status and index.",
+)
+async def root_index(settings: Settings = Depends(get_settings)):
+    return {
+        "name": settings.APP_NAME,
+        "version": settings.APP_VERSION,
+        "status": "online",
+        "documentation": "/docs",
+        "health": "/health/live",
+        "dashboard_note": "The Web Dashboard is hosted as a Render Static Site from apps/dashboard",
+    }
+
+
+@api_router.get(
     "/health/live",
     response_model=HealthResponse,
     tags=["Health"],
