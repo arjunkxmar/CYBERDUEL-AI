@@ -19,14 +19,16 @@ services:
         # Set this to your live backend URL in Render dashboard, e.g. https://cyberduel-api.onrender.com
 
   # ==============================================================================
-  # Optional: CyberDuel AI FastAPI Backend (Web Service)
+  # CyberDuel AI FastAPI Backend (Web Service)
   # ==============================================================================
   - type: web
     name: cyberduel-api
     runtime: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn apps.api.main:app --host 0.0.0.0 --port $PORT
+    buildCommand: pip install -r requirements.txt && pip install -e .
+    startCommand: uvicorn apps.api.app.main:app --host 0.0.0.0 --port $PORT
     envVars:
+      - key: PYTHONPATH
+        value: .
       - key: ENVIRONMENT
         value: production
       - key: SECRET_KEY
