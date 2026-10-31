@@ -17,10 +17,24 @@ import {
   UserProfile,
 } from "../types";
 
-const rawApiUrl = (import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || "") as string;
-const API_BASE = rawApiUrl
-  ? `${rawApiUrl.replace(/\/$/, "")}/api/v1`
-  : "/api/v1";
+export function getApiBaseUrl(): string {
+  if (typeof window !== "undefined") {
+    const customUrl = localStorage.getItem("cyberduel_api_url");
+    if (customUrl) return `${customUrl.replace(/\/$/, "")}/api/v1`;
+  }
+
+  const rawApiUrl = (import.meta.env.VITE_API_URL || import.meta.env.VITE_BACKEND_URL || "") as string;
+  if (rawApiUrl) {
+    return `${rawApiUrl.replace(/\/$/, "")}/api/v1`;
+  }
+
+  // Automatic Render fallback: if frontend is on onrender.com, use cyberduel-ai.onrender.com
+  if (typeof window !== "undefined" && window.location.hostname.includes("onrender.com")) {
+    return "https://cyberduel-ai.onrender.com/api/v1";
+  }
+
+  return "/api/v1";
+}
 
 /**
  * Utility to redact sensitive parameters and query arguments from URLs.
@@ -87,18 +101,25 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
     headers.set("Authorization", `Bearer ${token}`);
   }
 
-  const url = `${API_BASE}${endpoint}`;
+  const apiBase = getApiBaseUrl();
+  const url = `${apiBase}${endpoint}`;
   const response = await fetch(url, {
     ...options,
     headers,
   });
 
+  const contentType = response.headers.get("content-type") || "";
+
   if (!response.ok) {
     let errorData: any = {};
-    try {
-      errorData = await response.json();
-    } catch {
-      errorData = { detail: response.statusText };
+    if (contentType.includes("application/json")) {
+      try {
+        errorData = await response.json();
+      } catch {
+        errorData = { detail: response.statusText };
+      }
+    } else {
+      errorData = { detail: `Backend returned HTTP ${response.status}: ${response.statusText}` };
     }
     const message = errorData.detail || `Request failed with status ${response.status}`;
     throw new ApiError(message, response.status, errorData);
@@ -106,6 +127,13 @@ async function request<T>(endpoint: string, options: RequestInit = {}): Promise<
 
   if (response.status === 204) {
     return {} as T;
+  }
+
+  if (!contentType.includes("application/json")) {
+    throw new ApiError(
+      `Received non-JSON response from ${url}. Ensure the backend API is live and accessible.`,
+      response.status
+    );
   }
 
   return response.json();
