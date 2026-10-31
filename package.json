@@ -5,6 +5,7 @@
   "description": "CyberDuel AI Platform Monorepo",
   "scripts": {
     "build": "npm --prefix apps/dashboard install && npm --prefix apps/dashboard run build",
+    "start": "npx serve -s apps/dashboard/dist -l $PORT",
     "dev": "npm --prefix apps/dashboard run dev",
     "test:frontend": "npm --prefix apps/dashboard test",
     "install:frontend": "npm --prefix apps/dashboard install"
