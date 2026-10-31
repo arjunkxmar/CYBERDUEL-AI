@@ -62,15 +62,15 @@ def create_app() -> FastAPI:
     # 2. Correlation ID Middleware
     app.add_middleware(RequestCorrelationIdMiddleware)
 
-    # 3. Restrictive CORS Middleware
+    # 3. Permissive CORS Middleware for distributed deployment
     app.add_middleware(
         CORSMiddleware,
-        allow_origins=settings.CORS_ORIGINS,
-        allow_origin_regex=r"^https:\/\/.*(\.onrender\.com|\.vercel\.app)$",
+        allow_origins=["*"],
+        allow_origin_regex=r".*",
         allow_credentials=True,
-        allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+        allow_methods=["*"],
         allow_headers=["*"],
-        expose_headers=["X-Request-ID", "X-Process-Time-Ms"],
+        expose_headers=["*"],
     )
 
     # 4. Centralized Exception Handlers
